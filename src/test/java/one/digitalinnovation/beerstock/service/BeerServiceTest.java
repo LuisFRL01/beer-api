@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -89,5 +91,32 @@ public class BeerServiceTest {
 
         //then
         assertThrows(BeerNotFoundException.class, () -> beerService.findByName(expectedFoundBeerDTO.getName()));
+    }
+
+    @Test
+    void whenListBeerIsCalledThenReturnAListOfBeers(){
+        // given
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        //when
+        when(beerRepository.findAll()).thenReturn(Collections.singletonList(expectedFoundBeer));
+
+        //then
+        List<BeerDTO> foundBeersDTO = beerService.listAll();
+
+        assertThat(foundBeersDTO, is(not(empty())));
+        assertThat(foundBeersDTO.get(0), is(equalTo(expectedFoundBeerDTO)));
+    }
+
+    @Test
+    void whenListBeerIsCalledThenReturnAnEmptyListOfBeers(){
+        //when
+        when(beerRepository.findAll()).thenReturn(Collections.emptyList());
+
+        //then
+        List<BeerDTO> foundBeersDTO = beerService.listAll();
+
+        assertThat(foundBeersDTO, is(empty()));
     }
 }
